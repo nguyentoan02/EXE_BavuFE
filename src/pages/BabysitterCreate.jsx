@@ -17,19 +17,37 @@ export default function BabysitterCreate() {
         email: "",
         certificate: "",
     });
+    const [photo, setPhoto] = useState(null);
+    const [photoPreview, setPhotoPreview] = useState(null);
+
+    const handlePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setPhoto(file);
+            // Tạo preview URL cho ảnh
+            const previewUrl = URL.createObjectURL(file);
+            setPhotoPreview(previewUrl);
+        }
+    };
 
     const handleCreate = async () => {
         try {
-            await axios.post(
-                `${API_URL}/babysitters`,
-                { ...form },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-            navigate("/babysitters/admin"); // Điều hướng về trang danh sách
+            const formData = new FormData();
+            formData.append("name", form.name);
+            formData.append("phoneNumber", form.phoneNumber);
+            formData.append("email", form.email);
+            formData.append("certificate", form.certificate);
+            if (photo) {
+                formData.append("photo", photo);
+            }
+
+            await axios.post(`${API_URL}/babysitters`, formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            navigate("/babysitters/admin");
         } catch (error) {
             console.error("Failed to create babysitter:", error);
         }
@@ -42,6 +60,29 @@ export default function BabysitterCreate() {
                     <h2 className="text-xl font-bold text-center">
                         Create New Babysitter
                     </h2>
+
+                    {/* Thêm input cho ảnh */}
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                            Photo
+                        </label>
+                        <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={handlePhotoChange}
+                            className="w-full"
+                        />
+                        {photoPreview && (
+                            <div className="mt-2">
+                                <img
+                                    src={photoPreview}
+                                    alt="Preview"
+                                    className="w-32 h-32 object-cover rounded-lg"
+                                />
+                            </div>
+                        )}
+                    </div>
+
                     <Input
                         placeholder="Name"
                         value={form.name}

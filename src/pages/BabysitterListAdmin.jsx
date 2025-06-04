@@ -19,6 +19,8 @@ export default function BabysitterListAdmin() {
         email: "",
         certificate: "",
     });
+    const [photo, setPhoto] = useState(null);
+    const [photoPreview, setPhotoPreview] = useState(null);
 
     const fetchData = () => {
         axios
@@ -39,17 +41,45 @@ export default function BabysitterListAdmin() {
         fetchData();
     };
 
-    const handleEdit = (b) => {
+    const handleEdit = async (b) => {
         setEditing(b._id);
         setForm(b);
+        // Reset photo preview nếu có
+        if (b.photo) {
+            setPhotoPreview(b.photo);
+        }
     };
 
     const handleSave = async () => {
-        await axios.put(`${API_URL}/babysitters/${editing}`, form, {
-            headers: { Authorization: `Bearer ${token}` },
+        const formData = new FormData();
+        formData.append("name", form.name);
+        formData.append("phoneNumber", form.phoneNumber);
+        formData.append("email", form.email);
+        formData.append("certificate", form.certificate);
+        if (photo) {
+            formData.append("photo", photo);
+        }
+
+        await axios.put(`${API_URL}/babysitters/${editing}`, formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+            },
         });
         setEditing(null);
+        setPhoto(null);
+        setPhotoPreview(null);
         fetchData();
+    };
+
+    const handlePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setPhoto(file);
+            // Tạo preview URL cho ảnh
+            const previewUrl = URL.createObjectURL(file);
+            setPhotoPreview(previewUrl);
+        }
     };
 
     return (
@@ -78,6 +108,28 @@ export default function BabysitterListAdmin() {
                     editing === b._id ? (
                         <Card key={b._id} className="shadow-lg">
                             <CardContent className="p-4 space-y-2">
+                                {/* Thêm input cho ảnh */}
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Photo
+                                    </label>
+                                    <Input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handlePhotoChange}
+                                        className="w-full"
+                                    />
+                                    {photoPreview && (
+                                        <div className="mt-2">
+                                            <img
+                                                src={photoPreview}
+                                                alt="Preview"
+                                                className="w-32 h-32 object-cover rounded-lg"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+
                                 <Input
                                     value={form.name}
                                     onChange={(e) =>
@@ -128,7 +180,16 @@ export default function BabysitterListAdmin() {
                         </Card>
                     ) : (
                         <Card key={b._id} className="shadow-lg">
-                            <CardContent className="p-4 space-y-1">
+                            <CardContent className="p-4 space-y-2">
+                                {b.photo && (
+                                    <div className="mb-4">
+                                        <img
+                                            src={b.photo}
+                                            alt={b.name}
+                                            className="w-32 h-32 object-cover rounded-lg"
+                                        />
+                                    </div>
+                                )}
                                 <p>
                                     <strong>Name:</strong> {b.name}
                                 </p>

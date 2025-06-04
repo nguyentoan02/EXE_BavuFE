@@ -1,8 +1,9 @@
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import Header from "./Header";
+
 import { Calendar, FileText, MapPin, Building } from "lucide-react";
 import Footer from "./Footer";
+import Header from "./Header";
 
 export default function AdminPage() {
     // if (!user) {
@@ -12,7 +13,6 @@ export default function AdminPage() {
     return (
         <>
             <Header />
-
             <div className="container mx-auto py-10">
                 {/* Services Section */}
                 <div className="mt-12">
@@ -24,7 +24,7 @@ export default function AdminPage() {
                         <ServiceCard
                             title="Hourly Package"
                             image="/image.png"
-                            price="150,000 VND/H"
+                            price="100,000 VND/H"
                             type="Baby Care"
                             schedule="Monday - Saturday"
                             location="Da Nang"
@@ -33,7 +33,7 @@ export default function AdminPage() {
                         <ServiceCard
                             title="Daily Package"
                             image="/image2.png"
-                            price="450,000 VND/D"
+                            price="500,000 VND/D"
                             type="Baby Care"
                             schedule="Monday - Saturday"
                             location="Da Nang"
@@ -42,7 +42,7 @@ export default function AdminPage() {
                         <ServiceCard
                             title="Monthly Package"
                             image="/image3.png"
-                            price="7,840,000 VND/H"
+                            price="Negotiate"
                             type="Baby Care"
                             schedule="Monday - Saturday"
                             location="Da Nang"

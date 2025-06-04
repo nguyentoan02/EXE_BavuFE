@@ -33,19 +33,32 @@ export default function BabysitterListUser() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {babysitters.map((b) => (
                     <Card key={b._id} className="shadow-lg hover:shadow-xl">
-                        <CardContent className="p-6 space-y-2">
-                            <p className="text-lg">
-                                <strong>Name:</strong> {b.name}
-                            </p>
-                            <p className="text-lg">
-                                <strong>Phone:</strong> {b.phoneNumber}
-                            </p>
-                            <p className="text-lg">
-                                <strong>Email:</strong> {b.email}
-                            </p>
-                            <p className="text-lg">
-                                <strong>Certificate:</strong> {b.certificate}
-                            </p>
+                        <CardContent className="p-6 space-y-4">
+                            {/* Add photo display */}
+                            {b.photo && (
+                                <div className="mb-4">
+                                    <img
+                                        src={b.photo}
+                                        alt={b.name}
+                                        className="w-full h-48 object-cover rounded-lg"
+                                    />
+                                </div>
+                            )}
+                            <div className="space-y-2">
+                                <p className="text-lg">
+                                    <strong>Name:</strong> {b.name}
+                                </p>
+                                <p className="text-lg">
+                                    <strong>Phone:</strong> {b.phoneNumber}
+                                </p>
+                                <p className="text-lg">
+                                    <strong>Email:</strong> {b.email}
+                                </p>
+                                <p className="text-lg">
+                                    <strong>Certificate:</strong>{" "}
+                                    {b.certificate}
+                                </p>
+                            </div>
                         </CardContent>
                     </Card>
                 ))}

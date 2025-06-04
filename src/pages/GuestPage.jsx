@@ -1,13 +1,37 @@
-import { Button } from "@/components/ui/button"; // shadcn
-import { Link } from "react-router-dom";
+import React from "react";
+import Header from "./Header";
+import Midlanding from "./MidLanding";
+import Services from "./Services";
+import Testimonials from "./Testimonials";
+import CallToAction from "./CallToAction";
+import BlogSection from "./BlogSection";
+import Footer from "./Footer";
 
 export default function GuestPage() {
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-            <h1 className="text-3xl font-bold mb-4">Guest Page</h1>
-            <Link to="/login">
-                <Button>Go to Login</Button>
-            </Link>
-        </div>
+        <>
+            <Header />
+            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+                {/* Khung chứa ảnh */}
+                <div className="relative w-full h-full overflow-hidden">
+                    <img
+                        src="/image4.png"
+                        alt="Welcome to Baby Care"
+                        className="w-full h-full object-cover"
+                    />
+                </div>
+            </div>
+
+            {/* Phần nội dung bên dưới */}
+            <Midlanding />
+
+            {/* Các phần được tách ra thành component riêng */}
+            <Services />
+            <Testimonials />
+            <BlogSection />
+            <CallToAction />
+
+            <Footer />
+        </>
     );
 }

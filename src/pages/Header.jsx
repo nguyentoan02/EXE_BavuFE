@@ -20,14 +20,17 @@ export default function Header() {
                 {/* Logo */}
                 <Link to="/" className="flex items-center">
                     <div className="relative h-12 w-12">
-                        <div className="absolute inset-0 rounded-full border-2 border-sky-400"></div>
-                        <div className="absolute top-1/2 left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-pink-200">
-                            <div className="absolute inset-0 flex items-center justify-center text-pink-500 text-xs font-bold">
-                                BABY
-                            </div>
-                        </div>
+                        {" "}
+                        {/* Giảm kích thước logo */}
+                        <img
+                            src="/logo.jpeg"
+                            alt="Baby Care Logo"
+                            className="h-full w-full object-contain rounded-full"
+                        />
                     </div>
-                    <span className="ml-2 font-semibold text-sky-500">
+                    <span className="ml-2 text-lg font-bold text-sky-500">
+                        {" "}
+                        {/* Giảm kích thước chữ */}
                         BABY CARE
                     </span>
                 </Link>
@@ -71,27 +74,38 @@ export default function Header() {
                     </nav>
 
                     {/* Login Button */}
-                    <Link to="/login">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex items-center gap-1"
-                        >
-                            <LogIn className="h-4 w-4" />
-                            <span>Login</span>
-                        </Button>
-                    </Link>
-
-                    {/* Logout Button */}
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center gap-1"
-                        onClick={handleLogout} // Gọi hàm handleLogout khi bấm
-                    >
-                        <LogIn className="h-4 w-4" />
-                        <span>Logout</span>
-                    </Button>
+                    {/* Auth Buttons */}
+                    <div className="flex items-center gap-4">
+                        {token ? (
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-gray-600">
+                                        {user?.email}
+                                    </span>
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex items-center gap-1 hover:bg-red-50"
+                                    onClick={handleLogout}
+                                >
+                                    <LogIn className="h-4 w-4" />
+                                    <span>Logout</span>
+                                </Button>
+                            </div>
+                        ) : (
+                            <Link to="/login">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex items-center gap-1"
+                                >
+                                    <LogIn className="h-4 w-4" />
+                                    <span>Login</span>
+                                </Button>
+                            </Link>
+                        )}
+                    </div>
                 </div>
             </div>
         </header>

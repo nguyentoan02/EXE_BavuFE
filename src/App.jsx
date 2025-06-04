@@ -25,6 +25,7 @@ import StatusUpdateAdmin from "./pages/StatusUpdateAdmin";
 import BabysitterListUser from "@/pages/BabysitterListUser";
 import BabysitterListAdmin from "@/pages/BabysitterListAdmin";
 import BabysitterCreate from "./pages/BabysitterCreate";
+import AboutUsPage from "./pages/Aboutus";
 function App() {
     const { user } = useAuth();
 
@@ -35,7 +36,7 @@ function App() {
                     path="/"
                     element={
                         !user ? (
-                            <AdminPage />
+                            <GuestPage />
                         ) : (
                             <Navigate
                                 to={
@@ -116,6 +117,7 @@ function App() {
                     path="/service-detail-daily"
                     element={<ServiceDetailDaily />}
                 />
+                <Route path="/about" element={<AboutUsPage />} />
                 <Route path="/babysitters" element={<BabysitterListUser />} />
                 {/* <Route path="*" element={<NotFound />} /> */}
             </Routes>

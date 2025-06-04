@@ -6,3 +6,12 @@ export const login = async ({ email, password }) => {
     console.log("API login response:", res.data);
     return res.data;
 };
+
+export const register = async ({ email, password, role }) => {
+    const res = await axios.post(`${API_URL}/auth/register`, {
+        email,
+        password,
+        role,
+    });
+    return res.data;
+};

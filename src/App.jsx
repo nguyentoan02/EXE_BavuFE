@@ -12,6 +12,7 @@ import { useAuth } from "./hooks/useAuth";
 import GuestPage from "./pages/GuestPage";
 import Login from "./pages/Login";
 import AdminPage from "./pages/AdminPage";
+import Register from "./pages/Register";
 
 // User Page
 import BookingForm from "./pages/BookingForm";
@@ -21,6 +22,9 @@ import ServiceDetailDaily from "./pages/ServiceDetailDaily";
 // Admin Page
 import StatusUpdateAdmin from "./pages/StatusUpdateAdmin";
 
+import BabysitterListUser from "@/pages/BabysitterListUser";
+import BabysitterListAdmin from "@/pages/BabysitterListAdmin";
+import BabysitterCreate from "./pages/BabysitterCreate";
 function App() {
     const { user } = useAuth();
 
@@ -61,6 +65,23 @@ function App() {
                         )
                     }
                 />
+                <Route
+                    path="/register"
+                    element={
+                        !user ? (
+                            <Register />
+                        ) : (
+                            <Navigate
+                                to={
+                                    user.role === "user"
+                                        ? "/admin/dashboard"
+                                        : "/user/dashboard"
+                                }
+                                replace
+                            />
+                        )
+                    }
+                />
 
                 {/* Admin */}
                 <Route element={<PrivateRoute role="user" />}>
@@ -69,7 +90,6 @@ function App() {
                         path="/appointments/user"
                         element={<StatusUpdateUser />}
                     />
-
                     <Route path="/booking" element={<BookingForm />} />
                 </Route>
 
@@ -78,6 +98,14 @@ function App() {
                     <Route
                         path="/user/dashboard"
                         element={<StatusUpdateAdmin />}
+                    />
+                    <Route
+                        path="/babysitters/admin"
+                        element={<BabysitterListAdmin />}
+                    />
+                    <Route
+                        path="/babysitters/create"
+                        element={<BabysitterCreate />}
                     />
                 </Route>
 
@@ -88,6 +116,7 @@ function App() {
                     path="/service-detail-daily"
                     element={<ServiceDetailDaily />}
                 />
+                <Route path="/babysitters" element={<BabysitterListUser />} />
                 {/* <Route path="*" element={<NotFound />} /> */}
             </Routes>
         </Router>

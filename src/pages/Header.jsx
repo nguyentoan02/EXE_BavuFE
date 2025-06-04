@@ -35,6 +35,15 @@ export default function Header() {
                 {/* Navigation */}
                 <div className="flex items-center">
                     <nav className="flex items-center space-x-8 mr-6">
+                        <NavItem
+                            href={
+                                user?.role === "admin"
+                                    ? "/babysitters/admin"
+                                    : "/babysitters"
+                            }
+                        >
+                            Babysitter
+                        </NavItem>
                         <NavItem href="/admin/dashboard">Services</NavItem>
                         {token && (
                             <NavItem

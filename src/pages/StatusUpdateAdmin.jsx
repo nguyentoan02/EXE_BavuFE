@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "../hooks/useAuth";
 import Header from "./Header";
+import * as XLSX from "xlsx"; // Import thư viện xlsx
 
 const STATUS_OPTIONS = [
     { value: "pending", label: "Pending" },
@@ -24,7 +25,6 @@ export default function StatusUpdateAdmin() {
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
-    // Lưu trạng thái select tạm thời cho từng appointment
     const [statusDraft, setStatusDraft] = useState({});
 
     // Fetch appointments
@@ -36,15 +36,13 @@ export default function StatusUpdateAdmin() {
                 headers: { Authorization: `Bearer ${token}` },
             })
             .then((res) => {
-                // Nếu API trả về {data: [...]}
                 const data = res.data.data || res.data;
                 setAppointments(data);
-                // Khởi tạo statusDraft cho từng appointment
                 const draft = {};
                 data.forEach((a) => (draft[a._id] = a.status));
                 setStatusDraft(draft);
             })
-            .catch((err) => {
+            .catch(() => {
                 setMessage("Failed to fetch appointments");
             })
             .finally(() => setLoading(false));
@@ -85,6 +83,27 @@ export default function StatusUpdateAdmin() {
         setStatusDraft((prev) => ({ ...prev, [id]: value }));
     };
 
+    // Xuất dữ liệu ra file Excel
+    const handleExportToExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(
+            appointments.map((appointment) => ({
+                User: appointment.userId?.email || "",
+                Babysitter: appointment.babysitterId?.name || "",
+                Email: appointment.bookingEmail || "",
+                Phone: appointment.bookingPhoneNumber || "",
+                Address: appointment.address || "",
+                Time: appointment.startTime
+                    ? `${appointment.startTime} - ${appointment.endTime}`
+                    : `${appointment.startDate} - ${appointment.endDate}`,
+                Cost: appointment.cost || "",
+                Status: appointment.status || "",
+            }))
+        );
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Appointments");
+        XLSX.writeFile(workbook, "appointments.xlsx");
+    };
+
     return (
         <>
             <Header />
@@ -104,6 +123,15 @@ export default function StatusUpdateAdmin() {
                         {message}
                     </p>
                 )}
+
+                <div className="flex justify-end mb-4">
+                    <Button
+                        className="bg-green-500 hover:bg-green-600"
+                        onClick={handleExportToExcel}
+                    >
+                        Export to Excel
+                    </Button>
+                </div>
 
                 {loading ? (
                     <p className="text-center text-gray-500">Loading...</p>
@@ -177,14 +205,12 @@ export default function StatusUpdateAdmin() {
                                         <td className="py-2 px-4">
                                             {appointment.startTime &&
                                             appointment.endTime ? (
-                                                // Nếu là lịch theo giờ
                                                 <>
                                                     {appointment.startTime} -{" "}
                                                     {appointment.endTime}
                                                 </>
                                             ) : appointment.startDate &&
                                               appointment.endDate ? (
-                                                // Nếu là lịch theo ngày
                                                 <>
                                                     {new Date(
                                                         appointment.startDate

@@ -27,6 +27,8 @@ import BabysitterListAdmin from "@/pages/BabysitterListAdmin";
 import BabysitterCreate from "./pages/BabysitterCreate";
 import AboutUsPage from "./pages/Aboutus";
 import Blog from "./pages/Blog";
+import BabysitterDetail from "./pages/BabysitterDetail"; // Import trang chi tiết bà vú
+import BabysitterUpdate from "./pages/BabysitterUpdate"; // Import trang cập nhật bà vú
 function App() {
     const { user } = useAuth();
 
@@ -121,6 +123,11 @@ function App() {
                 <Route path="/about" element={<AboutUsPage />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/babysitters" element={<BabysitterListUser />} />
+                <Route path="/babysitters/:id" element={<BabysitterDetail />} />
+                <Route
+                    path="/babysitters/update/:id"
+                    element={<BabysitterUpdate />}
+                />
                 {/* <Route path="*" element={<NotFound />} /> */}
             </Routes>
         </Router>

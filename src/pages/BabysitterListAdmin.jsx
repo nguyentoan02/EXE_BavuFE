@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { User, Phone, Mail, MapPin, Eye, Edit, Trash2 } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -44,7 +45,6 @@ export default function BabysitterListAdmin() {
     const handleEdit = async (b) => {
         setEditing(b._id);
         setForm(b);
-        // Reset photo preview nếu có
         if (b.photo) {
             setPhotoPreview(b.photo);
         }
@@ -76,24 +76,23 @@ export default function BabysitterListAdmin() {
         const file = e.target.files[0];
         if (file) {
             setPhoto(file);
-            // Tạo preview URL cho ảnh
             const previewUrl = URL.createObjectURL(file);
             setPhotoPreview(previewUrl);
         }
     };
 
     return (
-        <div className="container mx-auto p-4">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-sky-700">
+        <div className="container mx-auto p-6">
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold text-sky-700">
                     Manage Babysitters
                 </h1>
-                <div className="flex gap-2">
+                <div className="flex gap-4">
                     <Button
                         variant="outline"
                         onClick={() => navigate("/babysitters/create")}
                     >
-                        Create babysitters
+                        Create Babysitter
                     </Button>
                     <Button
                         variant="outline"
@@ -103,12 +102,11 @@ export default function BabysitterListAdmin() {
                     </Button>
                 </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {babysitters.map((b) =>
                     editing === b._id ? (
-                        <Card key={b._id} className="shadow-lg">
-                            <CardContent className="p-4 space-y-2">
-                                {/* Thêm input cho ảnh */}
+                        <Card key={b._id} className="shadow-lg rounded-lg">
+                            <CardContent className="p-6 space-y-4">
                                 <div className="space-y-2">
                                     <label className="block text-sm font-medium text-gray-700">
                                         Photo
@@ -124,12 +122,11 @@ export default function BabysitterListAdmin() {
                                             <img
                                                 src={photoPreview}
                                                 alt="Preview"
-                                                className="w-32 h-32 object-cover rounded-lg"
+                                                className="w-32 h-32 object-cover rounded-lg shadow-md"
                                             />
                                         </div>
                                     )}
                                 </div>
-
                                 <Input
                                     value={form.name}
                                     onChange={(e) =>
@@ -179,44 +176,82 @@ export default function BabysitterListAdmin() {
                             </CardContent>
                         </Card>
                     ) : (
-                        <Card key={b._id} className="shadow-lg">
-                            <CardContent className="p-4 space-y-2">
-                                {b.photo && (
-                                    <div className="mb-4">
-                                        <img
-                                            src={b.photo}
-                                            alt={b.name}
-                                            className="w-32 h-32 object-cover rounded-lg"
-                                        />
+                        <Card
+                            key={b._id}
+                            className="shadow-lg rounded-xl border border-blue-100 hover:shadow-xl transition-shadow duration-200 bg-gradient-to-br from-white via-blue-50 to-blue-100"
+                        >
+                            <CardContent className="p-6 space-y-4">
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="flex-shrink-0">
+                                        {b.photo ? (
+                                            <img
+                                                src={b.photo}
+                                                alt={b.name}
+                                                className="w-32 h-32 object-cover rounded-full border-4 border-blue-200 shadow"
+                                            />
+                                        ) : (
+                                            <div className="w-32 h-32 flex items-center justify-center rounded-full bg-blue-100 border-4 border-blue-200 shadow">
+                                                <User className="w-16 h-16 text-blue-400" />
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                                <p>
-                                    <strong>Name:</strong> {b.name}
-                                </p>
-                                <p>
-                                    <strong>Phone:</strong> {b.phoneNumber}
-                                </p>
-                                <p>
-                                    <strong>Email:</strong> {b.email}
-                                </p>
-                                <p>
-                                    <strong>Certificate:</strong>{" "}
-                                    {b.certificate}
-                                </p>
-                                <div className="flex gap-2 pt-2">
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-sky-700 flex items-center gap-2">
+                                            <User className="w-5 h-5 text-blue-500" />
+                                            {b.name}
+                                        </h2>
+                                    </div>
+                                </div>
+                                <div className="space-y-2 text-[17px]">
+                                    <div className="flex items-center gap-2 text-gray-700">
+                                        <Phone className="w-5 h-5 text-green-500" />
+                                        <span className="font-medium">
+                                            {b.phoneNumber}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-gray-700">
+                                        <Mail className="w-5 h-5 text-pink-500" />
+                                        <span className="font-medium">
+                                            {b.email}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-gray-700">
+                                        <MapPin className="w-5 h-5 text-orange-500" />
+                                        <span className="font-medium">
+                                            {b.location || "N/A"}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="flex gap-4 pt-6 justify-end">
                                     <Button
                                         size="sm"
-                                        onClick={() => handleEdit(b)}
-                                        className="bg-blue-500 hover:bg-blue-600"
+                                        onClick={() =>
+                                            navigate(`/babysitters/${b._id}`)
+                                        }
+                                        className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition-transform transform hover:scale-105"
                                     >
+                                        <Eye className="w-4 h-4" />
+                                        View Details
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        onClick={() =>
+                                            navigate(
+                                                `/babysitters/update/${b._id}`
+                                            )
+                                        }
+                                        className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg shadow-md transition-transform transform hover:scale-105"
+                                    >
+                                        <Edit className="w-4 h-4" />
                                         Edit
                                     </Button>
                                     <Button
                                         size="sm"
                                         variant="destructive"
                                         onClick={() => handleDelete(b._id)}
-                                        className="bg-red-500 hover:bg-red-600"
+                                        className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-md transition-transform transform hover:scale-105"
                                     >
+                                        <Trash2 className="w-4 h-4" />
                                         Delete
                                     </Button>
                                 </div>

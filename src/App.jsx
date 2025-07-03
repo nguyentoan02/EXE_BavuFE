@@ -128,6 +128,9 @@ function App() {
                     path="/babysitters/update/:id"
                     element={<BabysitterUpdate />}
                 />
+
+                <Route path="/register" element={<Register />} />
+
                 {/* <Route path="*" element={<NotFound />} /> */}
             </Routes>
         </Router>

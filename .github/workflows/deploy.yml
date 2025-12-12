@@ -4,6 +4,10 @@ on:
    push:
       branches: ["master"]
 
+# Thiết lập môi trường mặc định cho toàn bộ Job để lấy Secret
+env:
+   DOCKER_IMAGE_TAG: ${{ github.run_number }}
+
 jobs:
    # --- GIAI ĐOẠN 1: BUILD & PUSH DOCKER ---
    build-and-push:
@@ -26,19 +30,18 @@ jobs:
            with:
               context: .
               push: true
-              # Đặt tên image (nhớ tạo secret DOCKER_IMAGE_NAME bên repo Frontend)
-              tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:${{ github.run_number }}
+              # Đặt tên image (sử dụng run_number làm tag)
+              tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
               cache-from: type=gha
               cache-to: type=gha,mode=max
+              # TRUYỀN BIẾN MÔI TRƯỜNG VITE VÀO QUÁ TRÌNH BUILD DOCKER
+              build-args: |
+                 VITE_API_URL=${{ secrets.VITE_API_URL }}
 
    # --- GIAI ĐOẠN 2: DEPLOY LÊN EC2 ---
    deploy:
       needs: build-and-push
       runs-on: ubuntu-latest
-
-      # Khai báo môi trường để lấy Secret
-      environment:
-         name: production
 
       steps:
          - name: Deploy to EC2
@@ -52,35 +55,30 @@ jobs:
                  # ========================================================
                  # 1. THIẾT LẬP BIẾN & LÀM SẠCH DỮ LIỆU
                  # ========================================================
-                 VERSION="${{ github.run_number }}"
+                 VERSION="${{ env.DOCKER_IMAGE_TAG }}"
                  FULL_IMAGE="${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:$VERSION"
 
-                 # Tên container cho Frontend (Khác với Backend)
                  CONTAINER_NAME="frontend-app" 
-
-                 # Port của Nginx trong Dockerfile (Luôn là 80)
                  INTERNAL_PORT="80" 
 
-                 # Lấy domain từ secret và xóa sạch ký tự lạ (khoảng trắng, tab, xuống dòng)
+                 # Lấy domain từ secret và xóa sạch ký tự lạ
                  RAW_DOMAIN="${{ secrets.DOMAIN_NAME }}"
                  DOMAIN_NAME=$(echo "$RAW_DOMAIN" | tr -d '[:space:]')
 
                  echo "🚀 Bắt đầu Deploy Frontend Ver: $VERSION"
-                 echo "🌐 Domain sạch: [$DOMAIN_NAME]"
+                 echo "🌐 Domain sử dụng cho Traefik: [$DOMAIN_NAME]"
 
                  # ========================================================
                  # 2. KÉO IMAGE & BACKUP
                  # ========================================================
+                 echo "📥 Kéo image mới: $FULL_IMAGE"
                  docker pull $FULL_IMAGE
 
                  if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
-                     echo "⚠️ Đang backup container cũ..."
-                     docker rename $CONTAINER_NAME "${CONTAINER_NAME}_backup"
-                     docker stop "${CONTAINER_NAME}_backup"
+                   echo "⚠️ Đang backup container cũ..."
+                   docker rename $CONTAINER_NAME "${CONTAINER_NAME}_backup"
+                   docker stop "${CONTAINER_NAME}_backup"
                  fi
-
-                 # Frontend thường không cần file .env lúc runtime (vì build xong là tĩnh)
-                 # Nhưng nếu bạn có cần biến môi trường thì thêm đoạn tạo file .env ở đây
 
                  # ========================================================
                  # 3. CHẠY CONTAINER MỚI (TRAEFIK MODE)
@@ -101,23 +99,23 @@ jobs:
                  # ========================================================
                  # 4. HEALTH CHECK & ROLLBACK
                  # ========================================================
-                 echo "fz Đang kiểm tra sức khỏe ứng dụng..."
+                 echo "🩺 Đang kiểm tra sức khỏe ứng dụng (chờ 10s)..."
                  sleep 10
 
                  if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
-                     echo "✅ DEPLOY FRONTEND THÀNH CÔNG!"
-                     docker rm -f "${CONTAINER_NAME}_backup" || true
-                     docker image prune -a -f --filter "until=24h"
+                   echo "✅ DEPLOY FRONTEND THÀNH CÔNG! Image: $FULL_IMAGE"
+                   docker rm -f "${CONTAINER_NAME}_backup" || true
+                   docker image prune -a -f --filter "until=24h"
                  else
-                     echo "❌ THẤT BẠI! Container bị crash. Đang Rollback..."
-                     docker rm -f $CONTAINER_NAME || true
-                     
-                     if [ "$(docker ps -a -q -f name=${CONTAINER_NAME}_backup)" ]; then
-                         docker rename "${CONTAINER_NAME}_backup" $CONTAINER_NAME
-                         docker start $CONTAINER_NAME
-                         echo "✅ Đã khôi phục phiên bản cũ."
-                     fi
-                     exit 1 
+                   echo "❌ THẤT BẠI! Container bị crash. Đang Rollback..."
+                   docker rm -f $CONTAINER_NAME || true
+                   
+                   if [ "$(docker ps -a -q -f name=${CONTAINER_NAME}_backup)" ]; then
+                     docker rename "${CONTAINER_NAME}_backup" $CONTAINER_NAME
+                     docker start $CONTAINER_NAME
+                     echo "✅ Đã khôi phục phiên bản cũ."
+                   fi
+                   exit 1 
                  fi
 
          # --- GỬI MAIL THÔNG BÁO (Tùy chọn) ---
@@ -135,6 +133,6 @@ jobs:
               from: GitHub Actions
               body: |
                  Dự án: Frontend ${{ github.repository }}
-                 Phiên bản: ${{ github.run_number }}
+                 Phiên bản: ${{ env.DOCKER_IMAGE_TAG }}
                  Trạng thái: ${{ job.status }}
                  Domain: ${{ secrets.DOMAIN_NAME }}

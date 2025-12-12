@@ -1,8 +1,13 @@
-# Stage 1: Build (Giữ nguyên như của bạn)
-FROM node:20-alpine AS builder
+# --- SỬA DÒNG NÀY ---
+# Thay vì dùng alpine, hãy dùng slim cho giai đoạn build
+FROM node:20-slim AS builder 
+
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci
+
+# Thêm --verbose để nếu còn lỗi nó sẽ hiện chi tiết
+RUN npm ci --verbose 
+
 COPY . .
 RUN npm run build
 
